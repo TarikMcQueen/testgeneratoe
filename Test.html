@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор Тестів</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #app-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%;
+            max-width: 700px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #input-area, #test-area, #results {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e0e6ed;
+            border-radius: 6px;
+            background-color: #f9fbfd;
+        }
+        .input-method {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            color: #718096;
+            font-weight: bold;
+        }
+        select {
+            padding: 10px;
+            border: 1px solid #d1d8e2;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            margin-bottom: 15px;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #d1d8e2;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .question h3 {
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            cursor: pointer;
+        }
+        .options input[type="radio"] {
+            margin-right: 8px;
+        }
+        .result-message {
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .correct {
+            color: #27ae60;
+        }
+        .incorrect {
+            color: #c0392b;
+        }
+        #results h2 {
+            margin-top: 0;
+        }
+        #results p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        #restart-button {
+            background-color: #2ecc71;
+        }
+        #restart-button:hover {
+            background-color: #27ae60;
+        }
+        #submit-button {
+            background-color: #e67e22;
+            margin-top: 15px;
+        }
+        #submit-button:hover {
+            background-color: #d35400;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <h1>Генератор Тестів</h1>
+
+        <div id="input-area">
+            <h2>Введіть запитання та відповіді</h2>
+
+            <div class="input-method">
+                <label for="format-select">Оберіть формат введення:</label>
+                <select id="format-select">
+                    <option value="text">Звичайний текст</option>
+                    <option value="json">JSON</option>
+                    <option value="csv">CSV</option>
+                </select>
+            </div>
+
+            <div id="text-input-area">
+                <p>Будь ласка, введіть кожне запитання та його варіанти відповідей (один з яких має бути правильним) у наступному форматі:</p>
+                <pre>
+Запитання 1
++Правильна відповідь 1
+-Неправильна відповідь 1
+-Ще одна неправильна відповідь
+</pre>
+                <textarea id="questions-text" placeholder="Введіть запитання та відповіді тут"></textarea>
+            </div>
+
+            <div id="json-input-area" style="display: none;">
+                <p>Будь ласка, введіть запитання та відповіді у форматі JSON:</p>
+                <pre>
+[
+  {
+    "question": "Яка столиця України?",
+    "answers": [
+      {"text": "Київ", "isCorrect": true},
+      {"text": "Львів", "isCorrect": false},
+      {"text": "Харків", "isCorrect": false}
+    ]
+  },
+  {
+    "question": "Яка планета є найближчою до Сонця?",
+    "answers": [
+      {"text": "Меркурій", "isCorrect": true},
+      {"text": "Венера", "isCorrect": false},
+      {"text": "Марс", "isCorrect": false}
+    ]
+  }
+]
+</pre>
+                <textarea id="questions-json" placeholder="Введіть JSON тут"></textarea>
+            </div>
+
+            <div id="csv-input-area" style="display: none;">
+                <p>Будь ласка, введіть запитання та відповіді у форматі CSV (роздільник - кома). Перший рядок - запитання, наступні - варіанти відповідей. Правильна відповідь повинна бути позначена зірочкою (*) на початку.</p>
+                <pre>
+Яка столиця України?,Київ*,Львів,Харків
+Яка планета є найближчою до Сонця?,Меркурій*,Венера,Марс
+</pre>
+                <textarea id="questions-csv" placeholder="Введіть CSV тут"></textarea>
+            </div>
+
+            <button onclick="processQuestions()">Згенерувати Тест</button>
+        </div>
+
+        <div id="test-area" style="display: none;">
+            <h2>Тест</h2>
+            <form id="test-form"></form>
+            <button id="submit-button" onclick="submitTest()">Завершити Тест</button>
+            <div id="results"></div>
+        </div>
+
+        <div id="restart-area" style="display: none; text-align: center;">
+            <h2>Тест завершено!</h2>
+            <p id="final-score"></p>
+            <button id="restart-button" onclick="restartTest()">Пройти тест знову</button>
+        </div>
+    </div>
+
+    <script>
+        const formatSelect = document.getElementById('format-select');
+        const textInputArea = document.getElementById('text-input-area');
+        const jsonInputArea = document.getElementById('json-input-area');
+        const csvInputArea = document.getElementById('csv-input-area');
+        const inputArea = document.getElementById('input-area');
+        const testArea = document.getElementById('test-area');
+        const testForm = document.getElementById('test-form');
+        const resultsDiv = document.getElementById('results');
+        const submitButton = document.getElementById('submit-button');
+        const restartArea = document.getElementById('restart-area');
+        const finalScoreDisplay = document.getElementById('final-score');
+        let currentQuestionsData = [];
+
+        formatSelect.addEventListener('change', () => {
+            textInputArea.style.display = 'none';
+            jsonInputArea.style.display = 'none';
+            csvInputArea.style.display = 'none';
+
+            const selectedFormat = formatSelect.value;
+            if (selectedFormat === 'text') {
+                textInputArea.style.display = 'block';
+            } else if (selectedFormat === 'json') {
+                jsonInputArea.style.display = 'block';
+            } else if (selectedFormat === 'csv') {
+                csvInputArea.style.display = 'block';
+            }
+        });
+
+        function processQuestions() {
+            const selectedFormat = formatSelect.value;
+            let questions = [];
+
+            if (selectedFormat === 'text') {
+                questions = parseTextFormat(document.getElementById('questions-text').value);
+            } else if (selectedFormat === 'json') {
+                questions = parseJsonFormat(document.getElementById('questions-json').value);
+            } else if (selectedFormat === 'csv') {
+                questions = parseCsvFormat(document.getElementById('questions-csv').value);
+            }
+
+            if (questions && questions.length > 0) {
+                currentQuestionsData = questions;
+                renderTest(questions);
+                inputArea.style.display = 'none';
+                testArea.style.display = 'block';
+                resultsDiv.innerHTML = '';
+                restartArea.style.display = 'none';
+                submitButton.style.display = 'block';
+            } else {
+                alert('Будь ласка, введіть коректні запитання у вибраному форматі.');
+            }
+        }
+
+        function parseTextFormat(inputText) {
+            const questionsArray = inputText.trim().split('\n\n');
+            const questions = [];
+            questionsArray.forEach(questionBlock => {
+                const lines = questionBlock.split('\n').map(line => line.trim()).filter(line => line !== '');
+                if (lines.length >= 2) {
+                    const questionText = lines[0];
+                    const answers = [];
+                    let correctAnswer = null;
+                    for (let i = 1; i < lines.length; i++) {
+                        const answerText = lines[i].substring(1).trim();
+                        answers.push({
+                            text: answerText,
+                            isCorrect: lines[i].startsWith('+')
+                        });
+                        if (lines[i].startsWith('+')) {
+                            correctAnswer = answerText;
+                        }
+                    }
+                    if (correctAnswer !== null && answers.length >= 2) {
+                        answers.sort(() => Math.random() - 0.5);
+                        questions.push({
+                            question: questionText,
+                            answers: answers,
+                            correctAnswer: correctAnswer
+                        });
+                    }
+                }
+            });
+            return questions;
+        }
+
+        function parseJsonFormat(jsonText) {
+            try {
+                const questionsData = JSON.parse(jsonText);
+                if (!Array.isArray(questionsData)) {
+                    alert('JSON повинен бути масивом об\'єктів.');
+                    return null;
+                }
+                return questionsData.map(item => ({
+                    question: item.question,
+                    answers: item.answers.sort(() => Math.random() - 0.5),
+                    correctAnswer: item.answers.find(answer => answer.isCorrect)?.text
+                })).filter(q => q.question && q.answers && q.correctAnswer);
+            } catch (e) {
+                alert('Невірний формат JSON: ' + e);
+                return null;
+            }
+        }
+
+        function parseCsvFormat(csvText) {
+            const lines = csvText.trim().split('\n').map(line => line.trim()).filter(line => line !== '');
+            const questions = [];
+            lines.forEach(line => {
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const questionText = parts[0];
+                    const answers = parts.slice(1).map(answer => ({
+                        text: answer.replace('*', '').trim(),
+                        isCorrect: answer.startsWith('*')
+                    }));
+                    const correctAnswer = answers.find(answer => answer.isCorrect)?.text;
+                    if (correctAnswer && answers.length >= 2) {
+                        answers.sort(() => Math.random() - 0.5);
+                        questions.push({
+                            question: questionText,
+                            answers: answers,
+                            correctAnswer: correctAnswer
+                        });
+                    }
+                }
+            });
+            return questions;
+        }
+
+        function renderTest(questions) {
+            testForm.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.innerHTML = `<h3>${index + 1}. ${q.question}</h3>`;
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+
+                q.answers.forEach((answer, answerIndex) => {
+                    const label = document.createElement('label');
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question-${index}`;
+                    input.value = answerIndex;
+                    input.addEventListener('change', () => checkAnswer(index, answerIndex, q.correctAnswer, q.answers[answerIndex].text));
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(answer.text));
+                    optionsDiv.appendChild(label);
+
+                    const resultMessage = document.createElement('div');
+                    resultMessage.classList.add('result-message');
+                    resultMessage.id = `result-${index}`;
+                    resultMessage.style.display = 'none';
+                    optionsDiv.appendChild(resultMessage);
+                });
+
+                questionDiv.appendChild(optionsDiv);
+                testForm.appendChild(questionDiv);
+            });
+        }
+
+        function checkAnswer(questionIndex, selectedAnswerIndex, correctAnswer, selectedAnswerText) {
+            const resultElement = document.getElementById(`result-${questionIndex}`);
+            if (selectedAnswerText === correctAnswer) {
+                resultElement.textContent = 'Правильно!';
+                resultElement.className = 'result-message correct';
+            } else {
+                resultElement.textContent = `Неправильно. Правильна відповідь: ${correctAnswer}`;
+                resultElement.className = 'result-message incorrect';
+            }
+            resultElement.style.display = 'block';
+        }
+
+        function submitTest() {
+            let score = 0;
+            const totalQuestions = currentQuestionsData.length;
+            let resultsHTML = '<h2>Результати:</h2>';
+
+            currentQuestionsData.forEach((q, index) => {
+                const selectedOption = testForm.querySelector(`input[name="question-${index}"]:checked`);
+                let userAnswer = "Не обрано";
+                 if (selectedOption) {
+                    const selectedAnswerIndex = parseInt(selectedOption.value);
+                    userAnswer = q.answers[selectedAnswerIndex].text;
+                    if (q.answers[selectedAnswerIndex].text === q.correctAnswer) {
+                        score++;
+                    }
+                }
+
+                resultsHTML += `<p><b>${index + 1}. ${q.question}</b><br>`;
+                resultsHTML += `Ваша відповідь: ${userAnswer}<br>`;
+                resultsHTML += `Правильна відповідь: ${q.correctAnswer}<br>`;
+                 if (userAnswer === q.correctAnswer) {
+                    resultsHTML += `<span class="correct">Правильно!</span></p>`;
+                } else {
+                     resultsHTML += `<span class="incorrect">Неправильно!</span></p>`;
+                }
+            });
+
+            finalScoreDisplay.innerHTML = `Ваш загальний результат: ${score} з ${totalQuestions}<br><br>${resultsHTML}`;
+            testArea.style.display = 'none';
+            restartArea.style.display = 'block';
+        }
+
+        function restartTest() {
+            inputArea.style.display = 'block';
+            testArea.style.display = 'none';
+            restartArea.style.display = 'none';
+            testForm.innerHTML = '';
+            currentQuestionsData = [];
+            // Очистити поля введення (за бажанням)
+            document.getElementById('questions-text').value = '';
+            document.getElementById('questions-json').value = '';
+            document.getElementById('questions-csv').value = '';
+            formatSelect.value = 'text';
+            textInputArea.style.display = 'block';
+            jsonInputArea.style.display = 'none';
+            csvInputArea.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
